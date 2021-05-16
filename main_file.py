@@ -31,9 +31,14 @@ from tweepy import StreamListener
 from tweepy import Stream
 from datetime import datetime,timedelta
 import time
-now = datetime.now()
+import pytz
+
+tz_NY=pytz.timezone('Asia/Kolkata')
+print(tz_NY,"Time ZONE")
+now = datetime.now(tz_NY)
+print(now)
 tweet_count=0
-base = datetime.today()
+base = now#datetime.today()
 print(base)
 
 numdays = 7
@@ -184,13 +189,13 @@ if __name__=='__main__':
             msg="#{0}\U0001F4E2 \n Date: {1} \n\n\t \U0001F489 Slots Available: \n\t".format(dist,inp_date)
 #             print("String dates inserting",dist)
             
-            covs_45=len(value[(value['Available Date']==inp_date) & (value['Vaccine Type']=='COVISHIELD') & (value['Age Group']==45)])
+            covs_45=sum(value[(value['Available Date']==inp_date) & (value['Vaccine Type']=='COVISHIELD') & (value['Age Group']==45)]['available capacity'])
            
-            covx_45=len(value[(value['Available Date']==inp_date) & (value['Vaccine Type']=='COVAXIN') & (value['Age Group']==45)])
+            covx_45=sum(value[(value['Available Date']==inp_date) & (value['Vaccine Type']=='COVAXIN') & (value['Age Group']==45)]['available capacity'])
         
-            covs_18=len(value[(value['Available Date']==inp_date) & (value['Vaccine Type']=='COVISHIELD') & (value['Age Group']==18)])
+            covs_18=sum(value[(value['Available Date']==inp_date) & (value['Vaccine Type']=='COVISHIELD') & (value['Age Group']==18)]['available capacity'])
            
-            covx_18=len(value[(value['Available Date']==inp_date) & (value['Vaccine Type']=='COVAXIN') & (value['Age Group']==18)])
+            covx_18=sum(value[(value['Available Date']==inp_date) & (value['Vaccine Type']=='COVAXIN') & (value['Age Group']==18)]['available capacity'])
            
                 
 #             print([covs_45,covx_45,covs_18,covx_18])
