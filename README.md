@@ -3,7 +3,7 @@
 
 This can find the slot availablity for Vaccination across nation which is need great effort and notify you through Twitter! Instead of visiting coWin we can directly check through this script or else through muxtrap.pythonanywhere.com where i have added this field, it takes data from there
 
-This also notifies you through Email and Twitter regarding the slots available: https://twitter.com/vax_track
+This also notifies you through Email and Twitter regarding the slots available: https://twitter.com/vax_track and it is chduled on Google Cloud for CRON job
 
 
 
