@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[3]:
-
-
 '''Getting the input values from Google Spread API'''
 import gspread
 import pandas as pd
@@ -57,7 +51,7 @@ def gspreadData():
     
     sheet_id='1jYrsjlx4xD8MSkFGM3mItJT59ytoc5_LZJgE6wMSWK0'
     sheet_name='CovidData'
-    url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
+    url = r"https://docs.google.com/spreadsheets/d/{0}/gviz/tq?tqx=out:csv&sheet={1}".format(sheet_id,sheet_name)
     url  
     df=pd.read_csv(url,error_bad_lines=False)
     df.dropna(axis=1, how='all')
@@ -104,8 +98,8 @@ def vaccineSlotsByDist(age,district_id):
                                         
                                         session["vaccine"]='No Information'
 #                                     print("\n\n")
-                                    available_df.append([center["name"],center["block_name"],center["fee_type"],session["vaccine"],                                                        center['district_name'],center['state_name'],                                                        
-                                                        center['pincode'],inp_date, session["available_capacity"], session["min_age_limit"]
+                                    available_df.append([center["name"],center["block_name"],center["fee_type"],session["vaccine"], center['district_name'],center['state_name'],                                                        
+                                                        center['pincode'],inp_date, session["available_capacity_dose1"] ,session["available_capacity_dose2"], session["min_age_limit"]
                                                         
                                                         ])
                                                         
@@ -121,9 +115,11 @@ def vaccineSlotsByDist(age,district_id):
 
 
         # Create the pandas DataFrame for re grouping whole data into one particlur data frames
-        info_vaccination = pd.DataFrame(available_df, columns = ['Vaccination Center', 'Block_name','Fee_type','Vaccine Type',            'District','State Name','Pincode','Available Date','available capacity','Age Group'],index=None)
+        info_vaccination = pd.DataFrame(available_df, columns = ['Vaccination Center', 'Block_name','Fee_type','Vaccine Type',\
+            'District','State Name','pincode','Available Date','available capacity 1','available capacity 2','Age Group'],index=None)
         
-        indexNames = info_vaccination[ (info_vaccination['available capacity'] == 0) ].index
+        indexNames = info_vaccination[ (info_vaccination['available capacity 1'] == 0) & (info_vaccination['available capacity 2'] == 0)].index
+        print(indexNames)
     
         info_vaccination.drop(indexNames , inplace=True)
        
@@ -189,36 +185,60 @@ if __name__=='__main__':
             msg="#{0}\U0001F4E2 \n Date: {1} \n\n\t \U0001F489 Slots Available: \n\t".format(dist,inp_date)
 #             print("String dates inserting",dist)
             
-            covs_45=sum(value[(value['Available Date']==inp_date) & (value['Vaccine Type']=='COVISHIELD') & (value['Age Group']==45)]['available capacity'])
+            covs_45=int(sum(value[(value['Available Date']==inp_date) & (value['Vaccine Type']=='COVISHIELD') & (value['Age Group']==45)]['available capacity 1']))
+            covs_45_d2=int(sum(value[(value['Available Date']==inp_date) & (value['Vaccine Type']=='COVISHIELD') & (value['Age Group']==45)]['available capacity 2']))
            
-            covx_45=sum(value[(value['Available Date']==inp_date) & (value['Vaccine Type']=='COVAXIN') & (value['Age Group']==45)]['available capacity'])
+            covx_45=int(sum(value[(value['Available Date']==inp_date) & (value['Vaccine Type']=='COVAXIN') & (value['Age Group']==45)]['available capacity 1']))
+            covx_45_d2=int(sum(value[(value['Available Date']==inp_date) & (value['Vaccine Type']=='COVAXIN') & (value['Age Group']==45)]['available capacity 2']))
         
-            covs_18=sum(value[(value['Available Date']==inp_date) & (value['Vaccine Type']=='COVISHIELD') & (value['Age Group']==18)]['available capacity'])
+            covs_18=int(sum(value[(value['Available Date']==inp_date) & (value['Vaccine Type']=='COVISHIELD') & (value['Age Group']==18)]['available capacity 1']))
+            covs_18_d2=int(sum(value[(value['Available Date']==inp_date) & (value['Vaccine Type']=='COVISHIELD') & (value['Age Group']==18)]['available capacity 2']))
            
-            covx_18=sum(value[(value['Available Date']==inp_date) & (value['Vaccine Type']=='COVAXIN') & (value['Age Group']==18)]['available capacity'])
+            covx_18=int(sum(value[(value['Available Date']==inp_date) & (value['Vaccine Type']=='COVAXIN') & (value['Age Group']==18)]['available capacity 1']))
+            covx_18_d2=int(sum(value[(value['Available Date']==inp_date) & (value['Vaccine Type']=='COVAXIN') & (value['Age Group']==18)]['available capacity 2']))
            
                 
 #             print([covs_45,covx_45,covs_18,covx_18])
-            if all(v == 0 for v in [covs_45,covx_45,covs_18,covx_18]):
+            if all(v == 0 for v in [covs_45,covs_45_d2,covx_45,covx_45_d2,covs_18,covs_18_d2,covx_18,covx_18_d2]):
                 print("No data for: ",inp_date)
 #                 continue
 
             else:
 
-                if covs_45 !=0:
-                    cov_45_flag='\t Covishield - 45+/{} Slots \n\t'.format(covs_45)
+                if covs_45 >0:
+                    cov_45_flag='\t Covishield - 45+/{} Slots dose 1 \n\t'.format(covs_45)
                     msg=msg+cov_45_flag
-                if covx_45 !=0:
-                    covx_45_flag='\t Covaxin - 45+/{} Slots \n\t'.format(covx_45)
+                    
+                if covs_45_d2 >0:
+                    cov_45_d2_flag='\t Covishield - 45+/{} Slots dose 2 \n\t'.format(covs_45_d2)
+                    msg=msg+cov_45_d2_flag
+                    
+                if covx_45 >0:
+                    covx_45_flag='\t Covaxin - 45+/{} Slots dose 1\n\t'.format(covx_45)
                     msg=msg+covx_45_flag
+                    
+                    
+                if covx_45_d2 >0:
+                    covx_45_d2_flag='\t Covaxin - 45+/{} Slots dose 2 \n\t'.format(covx_45_d2)
+                    msg=msg+covx_45_d2_flag
 
-                if covs_18 !=0:
-                    covs_18_flag='\t Covishield (18-44)/{} Slots \n\t'.format(covs_18)
+                if covs_18 >0:
+                    covs_18_flag='\t Covishield (18-44)/{} Slots dose 1\n\t'.format(covs_18)
                     msg=msg + covs_18_flag
+                    
+                    
+                if covs_18_d2 >0:
+                    covs_18_d2_flag='\t Covishield (18-44)/{} Slots dose 2\n\t'.format(covs_18_d2)
+                    msg=msg + covs_18_d2_flag
 
-                if covx_18 !=0:
-                    covx_18_flag='\t Covaxin (18-44)/{} Slots \n\t'.format(covx_18)
+                if covx_18 >0:
+                    covx_18_flag='\t Covaxin (18-44)/{} Slots dose 1\n\t'.format(covx_18)
                     msg=msg+ covx_18_flag
+                    
+                    
+                if covx_18_d2 >0:
+                    covx_18_d2_flag='\t Covaxin (18-44)/{} Slots dose 2\n\t'.format(covx_18_d2)
+                    msg=msg+ covx_18_d2_flag
 
                 msg=msg+'#COVID19IndiaHelp #VaxTrack \n\n Last Tracked: {}'.format(now.strftime('%d-%m-%Y, %I:%M%p'))
                 print(msg)
@@ -227,7 +247,7 @@ if __name__=='__main__':
                 tweet_count+=1
         if j%2==0:
             print("Waiting time ^_^")
-            time.sleep(150)
+            time.sleep(130)
             print("Waiting time ENDS ^_^")
         else:
             pass
@@ -235,11 +255,3 @@ if __name__=='__main__':
 
 print("Total Tweet done in this Schdule: ",tweet_count)       
         
-    
-
-
-# In[ ]:
-
-
-
-
