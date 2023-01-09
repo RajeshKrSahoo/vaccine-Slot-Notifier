@@ -8,6 +8,10 @@ This also notifies you through Email and Twitter regarding the slots available: 
 
 Vaccine Slots ALert Diagram
 
+![test (1)](https://user-images.githubusercontent.com/27301175/211250213-3e5642b9-62cd-40ba-b5f4-5ced431f8abc.jpg)
+
+
+-----XXXXXXX Older Daigram XXXXXX----
 ![vaccNot](https://user-images.githubusercontent.com/27301175/119247021-05b96980-bba4-11eb-905d-aa5535ff8519.png)
 
 
